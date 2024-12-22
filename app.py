@@ -1,6 +1,15 @@
 from flask import Flask, request, render_template, jsonify
-
+import requests
 app = Flask(__name__)
+
+@app.route('/save-data', methods=['POST'])
+def save_data():
+    data = request.json
+    # Cambia la URL a la dirección de tu servidor local
+    response = requests.post('http://<192.168.0.1>:5001/save-data', json=data)
+    return response.json()
+
+
 
 @app.route('/')
 def index():
