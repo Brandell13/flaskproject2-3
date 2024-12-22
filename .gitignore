@@ -4,3 +4,4 @@ __pycache__/
 *.db
 .env
 saved_data.txt
+.idea/
