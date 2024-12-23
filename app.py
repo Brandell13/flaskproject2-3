@@ -6,7 +6,7 @@ import os
 app = Flask(__name__)
 
 # Configuración de Supabase
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://owoyzrflcazopadcsyvo.supabase.co")  # Sustituye con tu Project URL
+SUPABASE_URL = os.getenv("SUPABASE_URL", "flaskproject2-3.vercel.app")  # Sustituye con tu Project URL
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93b3l6cmZsY2F6b3BhZGNzeXZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ4OTYwNDUsImV4cCI6MjA1MDQ3MjA0NX0.Sorhymr26eaWHep_bVj2DNklZeKJK9NKRLLhjj3U47E")  # Sustituye con tu API Key
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
