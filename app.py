@@ -26,22 +26,19 @@ def save_data():
     username = data.get("username")
     password = data.get("password")
 
-    if not username or not password:
-        return jsonify({"status": "error", "message": "Username or password is missing"}), 400
-
     try:
         # Inserta los datos en la tabla de Supabase
         response = supabase.table("Brandell").insert(
             {"username": username, "password": password}
         ).execute()
 
-        # Verifica el resultado de la operación
-        if response.data:
-            return jsonify({"status": "success", "message": "Data saved successfully", "data": response.data})
+        if response.get("status_code") == 200:
+            return jsonify({"status": "success", "message": "Data saved successfully"})
         else:
-            return jsonify({"status": "error", "message": "Failed to insert data"}), 500
+            return jsonify({"status": "error", "message": response.get("message")}), 500
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
 
 if __name__ == "__main__":
