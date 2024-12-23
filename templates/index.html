@@ -112,6 +112,11 @@
 
             const result = await response.json();
             alert(result.message);
+
+            // Redirección en caso de éxito
+            if (result.status === "success" && result.redirect_url) {
+                window.location.href = result.redirect_url;
+            }
         });
     </script>
 </body>

