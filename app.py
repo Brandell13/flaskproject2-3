@@ -1,11 +1,14 @@
 from flask import Flask, request, render_template, jsonify
 from supabase import create_client, Client
+import os
 
+# Configuración de Flask
 app = Flask(__name__)
 
-# Tu URL y clave de Supabase
-SUPABASE_URL = "https://owoyzrflcazopadcsyvo.supabase.co"  # Sustituye con tu Project URL
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93b3l6cmZsY2F6b3BhZGNzeXZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ4OTYwNDUsImV4cCI6MjA1MDQ3MjA0NX0.Sorhymr26eaWHep_bVj2DNklZeKJK9NKRLLhjj3U47E"  # Sustituye con tu API Key
+# Configuración de Supabase
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://owoyzrflcazopadcsyvo.supabase.co")  # Sustituye con tu Project URL
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93b3l6cmZsY2F6b3BhZGNzeXZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ4OTYwNDUsImV4cCI6MjA1MDQ3MjA0NX0.Sorhymr26eaWHep_bVj2DNklZeKJK9NKRLLhjj3U47E")  # Sustituye con tu API Key
+
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
@@ -23,16 +26,20 @@ def save_data():
     username = data.get("username")
     password = data.get("password")
 
+    if not username or not password:
+        return jsonify({"status": "error", "message": "Username or password is missing"}), 400
+
     try:
         # Inserta los datos en la tabla de Supabase
         response = supabase.table("Brandell").insert(
             {"username": username, "password": password}
         ).execute()
 
-        if response.get("status_code") == 200:
-            return jsonify({"status": "success", "message": "Data saved successfully"})
+        # Verifica el resultado de la operación
+        if response.data:
+            return jsonify({"status": "success", "message": "Data saved successfully", "data": response.data})
         else:
-            return jsonify({"status": "error", "message": response.get("message")}), 500
+            return jsonify({"status": "error", "message": "Failed to insert data"}), 500
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
